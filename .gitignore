@@ -1,0 +1,5 @@
+node_modules/
+browser-state.json
+package-lock.json
+*.log
+.DS_Store

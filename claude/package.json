@@ -1,0 +1,12 @@
+{
+  "name": "claude-api",
+  "version": "1.0.0",
+  "description": "Claude OpenAI-compatible API server using Playwright",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0"
+  }
+}
