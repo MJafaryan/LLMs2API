@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/Logo.png" alt="LLMs2API Logo" width="200">
+  <img src="assets/Logo.png" alt="LLMs2API Logo" width="400">
 </p>
 
 <h1 align="center">LLMs2API</h1>
