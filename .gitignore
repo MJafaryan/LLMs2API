@@ -3,3 +3,4 @@ browser-state.json
 package-lock.json
 *.log
 .DS_Store
+chat.html

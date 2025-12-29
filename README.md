@@ -5,10 +5,10 @@
 <h1 align="center">LLMs2API</h1>
 
 <p align="center">
-  OpenAI-compatible API gateway for ChatGPT, DeepSeek, Qwen & Claude using browser automation
+  OpenAI-compatible API gateway for ChatGPT, DeepSeek, Qwen, Claude & Gemini using browser automation
 </p>
 
-A unified OpenAI-compatible API gateway for multiple AI chat services including **ChatGPT**, **DeepSeek**, **Qwen**, and **Claude**.
+A unified OpenAI-compatible API gateway for multiple AI chat services including **ChatGPT**, **DeepSeek**, **Qwen**, **Claude**, and **Gemini**.
 
 This solution enables seamless integration with popular AI platforms through a standardized REST API interface, leveraging browser automation to interact with web-based chat interfaces.
 
@@ -21,8 +21,9 @@ This project provides local API servers that expose OpenAI-compatible endpoints 
 ### Key Features
 
 - **OpenAI-Compatible API** - Drop-in replacement for OpenAI SDK integrations
-- **Multi-Provider Support** - ChatGPT, DeepSeek, Qwen, and Claude in one solution
+- **Multi-Provider Support** - ChatGPT, DeepSeek, Qwen, Claude, and Gemini in one solution
 - **Real-Time Streaming** - Server-Sent Events (SSE) support for streaming responses
+- **Image Generation** - Nano Banana (Gemini) and Qwen image generation support
 - **Concurrent Request Handling** - Dynamic page pool supporting up to 10 parallel requests
 - **Session Persistence** - Automatic browser state management for seamless authentication
 - **Stateless Architecture** - Each request initiates a fresh conversation
@@ -71,6 +72,11 @@ The gateway intercepts network traffic to capture streaming responses directly, 
 │   ├── package.json
 │   └── browser-state.json
 │
+├── gemini/                # Gemini Gateway (Port 3004)
+│   ├── server.js
+│   ├── package.json
+│   └── browser-state.json
+│
 └── README.md
 ```
 
@@ -88,7 +94,7 @@ The gateway intercepts network traffic to capture streaming responses directly, 
 Navigate to the desired provider directory and install dependencies:
 
 ```bash
-cd chatgpt  # or deepseek, qwen, claude
+cd chatgpt  # or deepseek, qwen, claude, gemini
 npm install
 ```
 
@@ -110,6 +116,7 @@ node server.js
 | DeepSeek | 3000 | `sk-deepseek` | `http://localhost:3000/v1` |
 | Qwen | 3001 | `sk-qwen` | `http://localhost:3001/v1` |
 | Claude | 3002 | `sk-claude` | `http://localhost:3002/v1` |
+| Gemini | 3004 | `sk-gemini` | `http://localhost:3004/v1` |
 
 ---
 
@@ -122,7 +129,7 @@ node server.js
 | GET | `/health` | Service health check |
 | GET | `/v1/models` | List available models |
 | POST | `/v1/chat/completions` | Generate chat completion |
-| POST | `/v1/images/generations` | Generate image (Qwen only) |
+| POST | `/v1/images/generations` | Generate image (Qwen, Gemini) |
 
 ### Available Models
 
@@ -156,6 +163,32 @@ node server.js
 |----------|-------------|
 | `claude-sonnet-4.5` | Claude Sonnet 4.5 |
 | `claude-haiku-4.5` | Claude Haiku 4.5 |
+
+**Gemini**
+| Model ID | Description |
+|----------|-------------|
+| `gemini-preview` | Gemini 3 Preview (Rapide) - Fast responses |
+| `gemini-reasoning` | Gemini 3 Reasoning (Raisonnement) - Enhanced reasoning |
+| `gemini-pro` | Gemini 3 Pro - Advanced capabilities |
+| `nano-banana` | 🍌 Nano Banana - Image generation with Preview |
+| `nano-banana-pro` | 🍌 Nano Banana Pro - Image generation with Pro |
+
+> **Gemini Image Generation:** Use `nano-banana` or `nano-banana-pro` models to generate images. The response includes base64-encoded image data that can be displayed directly.
+
+---
+
+## Gemini Web UI
+
+The Gemini gateway includes a built-in chat interface for testing:
+
+1. Start the Gemini server: `cd gemini && node server.js`
+2. Open `gemini/chat.html` in your browser
+3. Features:
+   - Model selection (all 5 models)
+   - Streaming toggle
+   - Markdown rendering
+   - Image display for Nano Banana responses
+   - Connection status indicator
 
 ---
 
@@ -258,6 +291,47 @@ $response = Invoke-RestMethod -Uri "http://localhost:3003/v1/chat/completions" `
 $response.choices[0].message.content
 ```
 
+### Gemini Examples
+
+```bash
+# Text generation with Gemini Preview
+curl -X POST http://localhost:3004/v1/chat/completions \
+  -H "Authorization: Bearer sk-gemini" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-preview",
+    "messages": [{"role": "user", "content": "Explain quantum computing"}]
+  }'
+
+# Image generation with Nano Banana
+curl -X POST http://localhost:3004/v1/images/generations \
+  -H "Authorization: Bearer sk-gemini" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "nano-banana",
+    "prompt": "A cat astronaut floating in space"
+  }'
+
+# Image generation via chat endpoint
+curl -X POST http://localhost:3004/v1/chat/completions \
+  -H "Authorization: Bearer sk-gemini" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "nano-banana-pro",
+    "messages": [{"role": "user", "content": "Generate an image of a sunset over mountains"}]
+  }'
+```
+
+```powershell
+# PowerShell - Gemini text request
+$response = Invoke-RestMethod -Uri "http://localhost:3004/v1/chat/completions" `
+  -Method POST `
+  -Headers @{"Authorization"="Bearer sk-gemini"; "Content-Type"="application/json"} `
+  -Body '{"model":"gemini-preview","messages":[{"role":"user","content":"Hello"}]}'
+
+$response.choices[0].message.content
+```
+
 ---
 
 ## Environment Variables
@@ -296,6 +370,8 @@ The gateway implements a dynamic page pool for handling concurrent requests:
 | Empty response | Verify login status; check browser window |
 | Port in use | Change port via `PORT` environment variable |
 | Session expired | Delete `browser-state.json` and re-authenticate |
+| Gemini response truncated | Response parsing issue - check server logs |
+| Nano Banana image blank | Wait longer for image to render (5s default) |
 
 ---
 
