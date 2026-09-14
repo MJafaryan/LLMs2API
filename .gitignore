@@ -3,4 +3,5 @@ browser-state.json
 package-lock.json
 *.log
 .DS_Store
+.envrc
 chat.html

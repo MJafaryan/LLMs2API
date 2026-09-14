@@ -44,7 +44,8 @@ async function initBrowser() {
   isInitializing = true;
   
   log('INFO', 'Starting browser...');
-  browser = await chromium.launch({ 
+  browser = await chromium.launch({
+    executablePath: process.env.BROWSER_EXECUTABLE_PATH || undefined,
     headless: HEADLESS,
     args: ['--disable-blink-features=AutomationControlled']
   });
